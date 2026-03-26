@@ -37,8 +37,13 @@ def create_user_profile(user_id: str, email: str, full_name: str) -> dict:
     is_first_user = (count_result.count or 0) == 0
     rol = "admin" if is_first_user else "user"
     profile_data = {"id": user_id, "email": email, "full_name": full_name, "rol": rol}
-    result = supabase.table("profiles").insert(profile_data).execute()
-    return result.data[0] if result.data else None
+    result = supabase.table("profiles").upsert(profile_data, ignore_duplicates=True).execute()
+    get_user_profile.clear()
+    # Si upsert no retornó datos (perfil ya existía), lo buscamos directamente
+    if result.data:
+        return result.data[0]
+    fresh = supabase.table("profiles").select("*").eq("id", user_id).single().execute()
+    return fresh.data
 
 # --- Consultas de Solicitudes ---
 
@@ -52,6 +57,6 @@ def get_user_solicitudes(user_id: str):
 
 def insert_solicitud(solicitud_data: dict):
     """Inserta una nueva solicitud de permiso."""
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     result = supabase.table("solicitudes").insert(solicitud_data).execute()
     return result.data
