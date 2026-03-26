@@ -26,8 +26,8 @@ Sistema web para la gestión automatizada y manual de permisos laborales del Col
    Crea un archivo `.streamlit/secrets.toml` en la raíz del proyecto con las siguientes claves:
    ```toml
    SUPABASE_URL = "https://tu-proyecto.supabase.co"
-   SUPABASE_KEY = "tu-anon-key"
-   SUPABASE_SERVICE_KEY = "tu-service-role-key"
+   SUPABASE_KEY = "sb_publishable"
+   SUPABASE_SERVICE_KEY = "sb_secret"
 
    SMTP_HOST = "smtp.gmail.com"
    SMTP_PORT = 587
