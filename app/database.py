@@ -23,7 +23,7 @@ def get_supabase_admin() -> Client:
 @st.cache_data(ttl=300)
 def get_user_profile(user_id: str):
     """Obtiene el perfil del usuario por ID."""
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     try:
         result = supabase.table("profiles").select("*").eq("id", user_id).single().execute()
         return result.data
@@ -56,8 +56,7 @@ def get_admin_emails() -> list:
 @st.cache_data(ttl=60)
 def get_user_solicitudes(user_id: str):
     """Obtiene las solicitudes de un usuario específico."""
-    supabase = get_supabase()
-    # Usamos la vista pública para usuarios normales
+    supabase = get_supabase_admin()
     result = supabase.table("solicitudes").select("*").eq("user_id", user_id).order("fecha_inicio", desc=True).execute()
     return result.data
 
@@ -65,4 +64,5 @@ def insert_solicitud(solicitud_data: dict):
     """Inserta una nueva solicitud de permiso."""
     supabase = get_supabase_admin()
     result = supabase.table("solicitudes").insert(solicitud_data).execute()
+    get_user_solicitudes.clear()
     return result.data

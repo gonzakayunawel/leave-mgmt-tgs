@@ -1,5 +1,13 @@
 from datetime import date, timedelta
+from datetime import datetime
 import holidays
+
+
+def _to_date(value) -> date:
+    """Convierte string ISO o date a date."""
+    if isinstance(value, date):
+        return value
+    return datetime.strptime(str(value)[:10], "%Y-%m-%d").date()
 
 def get_chilean_holidays(year: int):
     """Retorna los feriados de Chile para un año específico."""
@@ -47,13 +55,14 @@ def evaluate_auto_approval(
     """
     # 1. Validar cupo anual (3 días máximo)
     # Jornada completa = 1.0, mañana/tarde = 0.5
+    fecha_inicio = _to_date(fecha_inicio)
     current_year = fecha_inicio.year
     used_days = 0.0
     for sol in user_solicitudes:
         # Solo contar aprobados del año actual y de tipo administrativo
-        if (sol["tipo_permiso"] == "administrativo" and 
-            sol["estado"] in ["aprobado_auto", "aprobado_manual"] and 
-            sol["fecha_inicio"].year == current_year):
+        if (sol["tipo_permiso"] == "administrativo" and
+            sol["estado"] in ["aprobado_auto", "aprobado_manual"] and
+            _to_date(sol["fecha_inicio"]).year == current_year):
             used_days += 1.0 if sol["jornada"] == "completa" else 0.5
             
     new_request_value = 1.0 if jornada == "completa" else 0.5
@@ -68,14 +77,14 @@ def evaluate_auto_approval(
     # 3. Validar días consecutivos (No pueden ser días seguidos)
     for sol in user_solicitudes:
         if sol["estado"] in ["aprobado_auto", "aprobado_manual"]:
-            diff = abs((sol["fecha_inicio"] - fecha_inicio).days)
+            diff = abs((_to_date(sol["fecha_inicio"]) - fecha_inicio).days)
             if diff == 1:
                 return "pendiente", "No se permiten permisos administrativos en días consecutivos. Requiere revisión manual."
 
     # 4. Validar límite institucional (Máximo 2 por día en toda la institución)
     institutional_count = 0
     for sol in all_solicitudes:
-        if (sol["fecha_inicio"] == fecha_inicio and 
+        if (_to_date(sol["fecha_inicio"]) == fecha_inicio and
             sol["estado"] in ["aprobado_auto", "aprobado_manual"]):
             institutional_count += 1
             

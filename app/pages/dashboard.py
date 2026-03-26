@@ -10,25 +10,31 @@ def render_dashboard(user):
     # Obtener solicitudes
     solicitudes = get_user_solicitudes(user["id"])
     
-    # Calcular días administrativos restantes
-    # Cupo: 3 días
-    used_days = 0.0
+    # Calcular días administrativos usados (aprobados + pendientes)
     current_year = pd.Timestamp.now().year
-    
+    approved_days = 0.0
+    pending_days = 0.0
+
     for sol in solicitudes:
-        if (sol["tipo_permiso"] == "administrativo" and 
-            sol["estado"] in ["aprobado_auto", "aprobado_manual"] and 
-            pd.to_datetime(sol["fecha_inicio"]).year == current_year):
-            used_days += 1.0 if sol["jornada"] == "completa" else 0.5
-            
-    remaining_days = 3.0 - used_days
-    
+        if (sol["tipo_permiso"] == "administrativo" and
+                pd.to_datetime(sol["fecha_inicio"]).year == current_year):
+            value = 1.0 if sol["jornada"] == "completa" else 0.5
+            if sol["estado"] in ["aprobado_auto", "aprobado_manual"]:
+                approved_days += value
+            elif sol["estado"] == "pendiente":
+                pending_days += value
+
+    used_days = approved_days + pending_days
+    remaining_days = max(0.0, 3.0 - used_days)
+
     # Mostrar métricas
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Días administrativos restantes", f"{remaining_days} / 3.0")
+        st.metric("Días admin. disponibles", f"{remaining_days} / 3.0")
     with col2:
-        st.metric("Total solicitudes este año", len([s for s in solicitudes if pd.to_datetime(s["fecha_inicio"]).year == current_year]))
+        st.metric("Días usados (aprobados)", f"{approved_days}")
+    with col3:
+        st.metric("Días en revisión", f"{pending_days}")
 
     st.divider()
     
