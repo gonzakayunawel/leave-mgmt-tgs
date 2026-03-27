@@ -1,13 +1,14 @@
-# Leave Management App — Colegio TGS
+# Quiero mi Permiso! — Colegio TGS
 
-Web system for the automated and manual management of employee leave requests for Colegio TGS, developed with **Streamlit** and **Supabase**.
+Web system named **"Quiero mi Permiso!"** for the automated and manual management of employee leave requests for Colegio TGS, developed with **Streamlit** and **Supabase**.
 
 ## 🚀 Features
 - **Institutional Authentication:** Google OAuth login restricted to the `@colegiotgs.cl` domain.
-- **Rules Engine:** Automated approval of administrative leave based on annual quotas and calendar restrictions (holidays, eves, etc.).
-- **Admin Panel:** Management of pending requests, reports with dynamic filters, and user role administration.
+- **Rules Engine:** Automated approval based on annual quotas and calendar restrictions (national holidays, adjacent days, etc.).
+- **Non-Working Days Blocking:** Absolute restriction for weekends, national holidays, and internal holidays.
+- **Admin Panel:** Management of requests, dynamic reports, role administration (including **Read-Only Administrator**), and internal holiday management.
+- **Transparency:** Detailed visualization of the reason for manual review referral directly in the admin panel.
 - **Notifications:** Automated approval/rejection emails via SMTP.
-- **Reporting:** Export histories to CSV for administrative analysis.
 
 ## 🛠️ Tech Stack
 - **Frontend/Backend:** [Streamlit](https://streamlit.io/)

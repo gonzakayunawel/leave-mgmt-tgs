@@ -1,8 +1,8 @@
-# **Especificaciones Técnicas: App Leave Management TGS**
+# **Especificaciones Técnicas: Quiero mi Permiso!**
 
 ## **1\. Visión General**
 
-Desarrollo de una aplicación web para la gestión de permisos laborales del Colegio TGS. La plataforma permitirá a los empleados solicitar permisos (administrativos o sin goce de sueldo) y a la administración gestionar dichas solicitudes bajo reglas de negocio automatizadas y manuales.
+Desarrollo de una aplicación web denominada **"Quiero mi Permiso!"** para la gestión de permisos laborales del Colegio TGS. La plataforma permitirá a los empleados solicitar permisos (administrativos o sin goce de sueldo) y a la administración gestionar dichas solicitudes bajo reglas de negocio automatizadas y manuales.
 
 ## **2\. Stack Tecnológico**
 
@@ -84,13 +84,13 @@ Desarrollo de una aplicación web para la gestión de permisos laborales del Col
 
 ## **7\. Sistema de Notificaciones**
 
-Al autorizarse un permiso (automático o manual):
+### **7.1 Notificaciones de Solicitud**
+* Al ingresar una solicitud que requiere revisión manual, el sistema envía un correo a todos los administradores con los detalles y el motivo de la derivación.
 
-* **Destinatarios:** Usuario solicitante y Encargado de Área.  
-* **Idioma:** 100% Español.  
-* **Plantilla sugerida:**"Tu permiso de tipo![][image1]  
-  solicitado para la fecha![][image2]  
-  ha sido **APROBADO**."
+### **7.2 Notificaciones de Resolución**
+Al autorizarse o rechazarse un permiso (automático o manual):
+* **Destinatarios:** Usuario solicitante.
+* **Idioma:** 100% Español.
 
 ## **8\. Administración y Reportabilidad**
 
@@ -105,6 +105,7 @@ Para un control estricto, el panel de administración debe incluir:
 * **Herramientas de Visualización:**  
   * Capacidad de agrupar por: **Usuario**.  
   * Capacidad de ordenar por: **Fecha** (descendente/ascendente).
+* **Transparencia del Sistema:** Mostrar explícitamente el motivo por el cual una solicitud administrativa no fue aprobada automáticamente (ej: "Límite institucional alcanzado", "Día consecutivo", etc.).
 
 ### **8.2 Gestión de Calendario Interno**
 

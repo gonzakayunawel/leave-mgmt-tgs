@@ -1,15 +1,16 @@
-# Leave Management App — Colegio TGS
+# Quiero mi Permiso! — Colegio TGS
 
 [English version (README_EN.md)](README_EN.md)
 
-Sistema web para la gestión automatizada y manual de permisos laborales del Colegio TGS, desarrollado con **Streamlit** y **Supabase**.
+Sistema web denominado **"Quiero mi Permiso!"** para la gestión automatizada y manual de permisos laborales del Colegio TGS, desarrollado con **Streamlit** y **Supabase**.
 
 ## 🚀 Características
 - **Autenticación Institucional:** Login con Google OAuth restringido al dominio `@colegiotgs.cl`.
-- **Motor de Reglas:** Aprobación automática de permisos administrativos basada en cupos anuales y restricciones de calendario (feriados, vísperas, etc.).
-- **Panel de Administración:** Gestión de solicitudes pendientes, reportes con filtros dinámicos y administración de roles de usuario.
-- **Notificaciones:** Envío automático de correos de aprobación vía SMTP.
-- **Reportabilidad:** Exportación de historiales a CSV para análisis administrativo.
+- **Motor de Reglas:** Aprobación automática basada en cupos anuales y restricciones de calendario (feriados nacionales, días adyacentes, etc.).
+- **Bloqueo de Días No Laborales:** Restricción absoluta para fines de semana, feriados nacionales y feriados internos.
+- **Panel de Administración:** Gestión de solicitudes, reportes dinámicos, administración de roles (incluyendo **Administrador de Solo Lectura**) y gestión de calendario interno.
+- **Transparencia:** Visualización detallada del motivo de derivación a revisión manual directamente en el panel administrativo.
+- **Notificaciones:** Envío automático de correos de aprobación/rechazo vía SMTP.
 
 ## 🛠️ Stack Tecnológico
 - **Frontend/Backend:** [Streamlit](https://streamlit.io/)

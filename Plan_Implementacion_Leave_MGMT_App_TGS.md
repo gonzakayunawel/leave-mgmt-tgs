@@ -218,8 +218,11 @@ if not is_authenticated():
 # Navegación por rol
 user = st.session_state["user"]
 nav_options = ["Mi Historial", "Solicitar Permiso"]
-if user["rol"] == "admin":
-    nav_options += ["Gestión de Permisos", "Reportes", "Usuarios"]
+
+if user["rol"] in ["admin", "admin_read_only"]:
+    nav_options += ["Gestión de Permisos", "Reportes"]
+    if user["rol"] == "admin":
+        nav_options += ["Usuarios", "Feriados Internos"]
 
 page = st.sidebar.radio("Navegación", nav_options)
 ```
@@ -301,16 +304,18 @@ El parámetro `db_queries` es un dict de funciones pasadas desde `database.py` (
 
 #### `app/pages/admin_panel.py` — Gestión de Permisos
 
-- Inicia con `require_role("admin")`
-- Query a `solicitudes_admin` con service role key
+- Inicia con `render_admin_panel(user)`
+- Detecta si es `admin_read_only` para deshabilitar botones y acciones de edición.
+- Query a `solicitudes` con información de perfiles.
 - Por cada solicitud pendiente, un `st.expander` con:
   - Nombre, email, área del solicitante
-  - Tipo, fecha, jornada, motivo
-  - Para `con_goce`/`sin_goce`: `st.toggle("Procesar con pago")` → persiste en `es_pagado` (solo admin ve esto)
-  - `st.columns(2)` con botones **Aprobar** y **Rechazar**
-  - `st.text_input` opcional para `admin_nota`
-- On Aprobar: `update_solicitud(id, estado='aprobado_manual')` + `send_approval_email()` + `st.rerun()`
-- On Rechazar: `update_solicitud(id, estado='rechazado')` + `st.rerun()`
+  - Tipo, fecha, jornada, motivo usuario.
+  - **Motivo del sistema:** Mostrar en color de advertencia si la solicitud fue derivada automáticamente (ej. víspera de feriado).
+  - Para `con_goce`/`sin_goce`: `st.toggle("Procesar con pago")` → persiste en `es_pagado` (deshabilitado si es solo lectura).
+  - `st.columns(2)` con botones **Aprobar** y **Rechazar** (deshabilitados si es solo lectura).
+  - `st.text_input` opcional para `admin_nota`.
+- On Aprobar: `update_solicitud()` + `send_approval_email()` + `st.rerun()`
+- On Rechazar: `update_solicitud()` + `send_rejection_email()` + `st.rerun()`
 - `st.spinner` durante operaciones de DB
 
 #### `app/pages/admin_reports.py` — Reportes
