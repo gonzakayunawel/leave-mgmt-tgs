@@ -26,7 +26,7 @@ nav_options = ["🏠 Mi Historial", "📝 Solicitar Permiso"]
 if user.get("rol") == "admin":
     st.sidebar.divider()
     st.sidebar.subheader("Panel de Administración")
-    nav_options += ["✅ Gestión de Permisos", "📊 Reportes", "👥 Usuarios"]
+    nav_options += ["✅ Gestión de Permisos", "📊 Reportes", "👥 Usuarios", "📅 Días No Laborables"]
 
 page = st.sidebar.radio("Navegación", nav_options)
 
@@ -35,6 +35,7 @@ from app.pages.submit_request import render_submit_request
 from app.pages.admin_panel import render_admin_panel
 from app.pages.admin_reports import render_admin_reports
 from app.pages.admin_users import render_admin_users
+from app.pages.admin_feriados import render_admin_feriados
 
 # ... (código previo)
 
@@ -49,6 +50,8 @@ elif page == "📊 Reportes":
     render_admin_reports()
 elif page == "👥 Usuarios":
     render_admin_users()
+elif page == "📅 Días No Laborables":
+    render_admin_feriados(user)
 
 st.sidebar.divider()
 if st.sidebar.button("Cerrar Sesión"):

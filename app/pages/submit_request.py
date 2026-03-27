@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import date, timedelta
-from app.database import insert_solicitud, get_user_solicitudes, get_supabase_admin, get_admin_emails
-from app.services.leave_rules import evaluate_auto_approval
+from app.database import insert_solicitud, get_user_solicitudes, get_supabase_admin, get_admin_emails, get_feriados_internos
+from app.services.leave_rules import evaluate_auto_approval, is_blocked_day
 from app.constants import TIPO_PERMISO_LABELS, JORNADA_LABELS
 from app.notifications import send_new_request_email, send_approval_email
 
@@ -47,6 +47,13 @@ def render_submit_request(user):
             if motivo_tipo == "Otro" and not motivo_detalle.strip():
                 st.error("Por favor especifica el motivo.")
                 st.stop()
+
+            feriados = get_feriados_internos()
+            bloqueado, razon_bloqueo = is_blocked_day(fecha_inicio, feriados)
+            if bloqueado:
+                st.error(f"Fecha no válida: {razon_bloqueo}")
+                st.stop()
+
             # Procesar solicitud
             with st.spinner("Procesando solicitud..."):
                 try:

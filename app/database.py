@@ -66,3 +66,29 @@ def insert_solicitud(solicitud_data: dict):
     result = supabase.table("solicitudes").insert(solicitud_data).execute()
     get_user_solicitudes.clear()
     return result.data
+
+# --- Feriados Internos ---
+
+@st.cache_data(ttl=3600)
+def get_feriados_internos() -> list:
+    """Retorna todos los feriados internos definidos por el admin."""
+    supabase = get_supabase_admin()
+    result = supabase.table("feriados_internos").select("*").order("fecha").execute()
+    return result.data or []
+
+def add_feriado_interno(fecha: str, descripcion: str, created_by: str):
+    """Agrega un feriado interno."""
+    supabase = get_supabase_admin()
+    result = supabase.table("feriados_internos").insert({
+        "fecha": fecha,
+        "descripcion": descripcion,
+        "created_by": created_by
+    }).execute()
+    get_feriados_internos.clear()
+    return result.data[0] if result.data else None
+
+def delete_feriado_interno(feriado_id: str):
+    """Elimina un feriado interno por ID."""
+    supabase = get_supabase_admin()
+    supabase.table("feriados_internos").delete().eq("id", feriado_id).execute()
+    get_feriados_internos.clear()

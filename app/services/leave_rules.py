@@ -13,6 +13,33 @@ def get_chilean_holidays(year: int):
     """Retorna los feriados de Chile para un año específico."""
     return holidays.Chile(years=[year])
 
+def is_blocked_day(check_date: date, feriados_internos: list = None) -> tuple[bool, str]:
+    """
+    Verifica si un día no es hábil para solicitar permisos:
+    - Fin de semana (sábado/domingo)
+    - Feriado nacional chileno
+    - Feriado interno definido por admin
+    Retorna (bloqueado, razon).
+    """
+    # 1. Fin de semana
+    if check_date.weekday() >= 5:
+        return True, "No se pueden solicitar permisos en fin de semana (sábado o domingo)."
+
+    # 2. Feriado nacional chileno
+    cl_holidays = get_chilean_holidays(check_date.year)
+    if check_date in cl_holidays:
+        nombre = cl_holidays.get(check_date, "Feriado nacional")
+        return True, f"La fecha seleccionada es feriado nacional: {nombre}."
+
+    # 3. Feriado interno
+    if feriados_internos:
+        for f in feriados_internos:
+            if str(f["fecha"]) == str(check_date):
+                desc = f.get("descripcion") or "Día no laborable interno"
+                return True, f"Día no laborable: {desc}."
+
+    return False, ""
+
 def is_prohibited_day(check_date: date) -> tuple[bool, str]:
     """
     Verifica si un día está prohibido para permisos administrativos automáticos.
