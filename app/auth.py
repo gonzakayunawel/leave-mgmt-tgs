@@ -82,8 +82,8 @@ def require_role(role: str):
 
 def render_login_page():
     """Muestra la UI de inicio de sesión."""
-    st.title("Bienvenido al Colegio TGS")
-    st.subheader("Gestión de Permisos Laborales")
+    st.title("🏫 Quiero mi Permiso!")
+    st.subheader("Colegio TGS")
     st.write("Por favor, inicia sesión con tu cuenta institucional para continuar.")
     
     if st.button("Iniciar sesión con Google", icon="🔑"):

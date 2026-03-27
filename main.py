@@ -3,7 +3,7 @@ from app.auth import is_authenticated, render_login_page, handle_auth_callback
 
 # Configuración de la página (Debe ser el primer comando de Streamlit)
 st.set_page_config(
-    page_title="Leave Management TGS",
+    page_title="Quiero mi Permiso!",
     page_icon="📅",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -23,10 +23,12 @@ st.sidebar.title(f"Bienvenido, {user.get('full_name', 'Usuario')}")
 # Opciones de navegación basadas en el rol
 nav_options = ["🏠 Mi Historial", "📝 Solicitar Permiso"]
 
-if user.get("rol") == "admin":
+if user.get("rol") in ["admin", "admin_read_only"]:
     st.sidebar.divider()
     st.sidebar.subheader("Panel de Administración")
-    nav_options += ["✅ Gestión de Permisos", "📊 Reportes", "👥 Usuarios", "📅 Días No Laborables"]
+    nav_options += ["✅ Gestión de Permisos", "📊 Reportes"]
+    if user.get("rol") == "admin":
+        nav_options += ["👥 Usuarios", "📅 Días No Laborables"]
 
 page = st.sidebar.radio("Navegación", nav_options)
 
@@ -45,7 +47,7 @@ if page == "🏠 Mi Historial":
 elif page == "📝 Solicitar Permiso":
     render_submit_request(user)
 elif page == "✅ Gestión de Permisos":
-    render_admin_panel()
+    render_admin_panel(user)
 elif page == "📊 Reportes":
     render_admin_reports()
 elif page == "👥 Usuarios":

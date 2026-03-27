@@ -4,10 +4,14 @@ from app.database import get_supabase_admin
 from app.constants import TIPO_PERMISO_LABELS, JORNADA_LABELS
 from app.notifications import send_approval_email, send_rejection_email
 
-def render_admin_panel():
+def render_admin_panel(user):
     """Renderiza el panel de gestión de permisos para administradores."""
     st.header("✅ Gestión de Solicitudes Pendientes")
     
+    is_read_only = user.get("rol") == "admin_read_only"
+    if is_read_only:
+        st.info("Modo Solo Lectura: No puedes aprobar o rechazar solicitudes.")
+
     supabase = get_supabase_admin()
     
     # Query de solicitudes pendientes con información del perfil
@@ -39,8 +43,12 @@ def render_admin_panel():
             with col2:
                 st.write(f"**Fecha:** {sol['fecha_inicio']}")
                 st.write(f"**Jornada:** {JORNADA_LABELS.get(sol['jornada'])}")
-                st.write(f"**Motivo:** {sol.get('motivo', 'Sin motivo')}")
+                st.write(f"**Motivo Usuario:** {sol.get('motivo', 'Sin motivo')}")
             
+            # Mostrar razón de derivación si existe
+            if sol.get("admin_nota") and sol["admin_nota"].startswith("SISTEMA:"):
+                st.warning(f"⚠️ **Derivación Automática:** {sol['admin_nota'].replace('SISTEMA: ', '')}")
+
             st.divider()
             
             # Opción de Pago (Solo para Con Goce / Sin Goce)
@@ -49,30 +57,36 @@ def render_admin_panel():
                 es_pagado = st.toggle(
                     "Procesar con Pago (Remunerado)", 
                     value=sol["es_pagado"], 
-                    key=f"pay_{sol['id']}"
+                    key=f"pay_{sol['id']}",
+                    disabled=is_read_only
                 )
             
-            admin_nota = st.text_input("Nota administrativa (opcional)", key=f"note_{sol['id']}")
+            admin_nota_input = st.text_input(
+                "Nota administrativa (opcional)", 
+                key=f"note_{sol['id']}",
+                disabled=is_read_only,
+                placeholder="Escribe aquí el motivo de la decisión..."
+            )
             
             btn_col1, btn_col2, _ = st.columns([1, 1, 2])
             
-            if btn_col1.button("Aprobar", key=f"approve_{sol['id']}", type="primary"):
+            if btn_col1.button("Aprobar", key=f"approve_{sol['id']}", type="primary", disabled=is_read_only):
                 update_data = {
                     "estado": "aprobado_manual",
                     "es_pagado": es_pagado,
-                    "admin_nota": admin_nota
+                    "admin_nota": admin_nota_input
                 }
                 supabase.table("solicitudes").update(update_data).eq("id", sol["id"]).execute()
                 send_approval_email(sol, profile)
                 st.success("Solicitud APROBADA.")
                 st.rerun()
 
-            if btn_col2.button("Rechazar", key=f"reject_{sol['id']}", type="secondary"):
+            if btn_col2.button("Rechazar", key=f"reject_{sol['id']}", type="secondary", disabled=is_read_only):
                 update_data = {
                     "estado": "rechazado",
-                    "admin_nota": admin_nota
+                    "admin_nota": admin_nota_input
                 }
                 supabase.table("solicitudes").update(update_data).eq("id", sol["id"]).execute()
-                send_rejection_email(sol, profile, admin_nota)
+                send_rejection_email(sol, profile, admin_nota_input)
                 st.error("Solicitud RECHAZADA.")
                 st.rerun()

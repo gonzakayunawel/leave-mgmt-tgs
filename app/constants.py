@@ -20,4 +20,5 @@ JORNADA_LABELS = {
 ROL_LABELS = {
     "user": "Usuario",
     "admin": "Administrador",
+    "admin_read_only": "Administrador (Solo Lectura)",
 }

@@ -6,6 +6,10 @@ def render_admin_users():
     """Renderiza el panel de gestión de usuarios y roles."""
     st.header("👥 Gestión de Usuarios y Roles")
     
+    is_read_only = st.session_state["user"].get("rol") == "admin_read_only"
+    if is_read_only:
+        st.warning("Modo Solo Lectura: No tienes permisos para modificar usuarios.")
+
     supabase = get_supabase_admin()
     
     # Query de perfiles
@@ -36,7 +40,8 @@ def render_admin_users():
                     options=list(ROL_LABELS.keys()),
                     format_func=lambda x: ROL_LABELS[x],
                     index=list(ROL_LABELS.keys()).index(u["rol"]),
-                    key=f"rol_{u['id']}"
+                    key=f"rol_{u['id']}",
+                    disabled=is_read_only
                 )
             
             with col3:
@@ -46,7 +51,7 @@ def render_admin_users():
                     if u["rol"] == "admin" and admins_count <= 1 and new_rol != "admin":
                         st.error("No puedes quitar el rol de administrador al último administrador del sistema.")
                     else:
-                        if st.button("Guardar", key=f"save_{u['id']}", type="primary"):
+                        if st.button("Guardar", key=f"save_{u['id']}", type="primary", disabled=is_read_only):
                             supabase.table("profiles").update({"rol": new_rol}).eq("id", u["id"]).execute()
                             st.success("Rol actualizado.")
                             st.rerun()

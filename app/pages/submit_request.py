@@ -70,10 +70,13 @@ def render_submit_request(user):
                     razon = "Solicitud enviada para revisión manual."
                     
                     # Si es administrativo, evaluar auto-aprobación
+                    admin_nota = ""
                     if tipo_permiso == "administrativo":
                         estado, razon = evaluate_auto_approval(
                             user["id"], fecha_inicio, jornada, user_solicitudes, all_solicitudes
                         )
+                        if estado == "pendiente":
+                            admin_nota = f"SISTEMA: {razon}"
                     
                     # Preparar datos para insertar
                     # Determinar es_pagado por defecto
@@ -89,7 +92,8 @@ def render_submit_request(user):
                         "jornada": jornada,
                         "estado": estado,
                         "es_pagado": es_pagado,
-                        "motivo": motivo
+                        "motivo": motivo,
+                        "admin_nota": admin_nota
                     }
                     
                     insert_solicitud(solicitud_data)

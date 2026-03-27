@@ -35,6 +35,10 @@ def send_new_request_email(solicitud, user_profile, admin_emails: list) -> bool:
     tipo_label = TIPO_PERMISO_LABELS.get(solicitud['tipo_permiso'], solicitud['tipo_permiso'])
     jornada_label = JORNADA_LABELS.get(solicitud['jornada'], solicitud['jornada'])
     subject = f"Nueva solicitud de permiso — {user_profile['full_name']}"
+    
+    admin_nota = solicitud.get('admin_nota', '')
+    razon_sistema = f"\nMotivo derivación: {admin_nota.replace('SISTEMA: ', '')}" if admin_nota.startswith("SISTEMA:") else ""
+
     body = f"""
 Nueva solicitud de permiso recibida:
 
@@ -42,11 +46,11 @@ Docente: {user_profile['full_name']} ({user_profile['email']})
 Tipo: {tipo_label}
 Fecha: {solicitud['fecha_inicio']}
 Jornada: {jornada_label}
-Motivo: {solicitud.get('motivo') or 'Sin motivo'}
+Motivo Docente: {solicitud.get('motivo') or 'Sin motivo'}{razon_sistema}
 
 Ingresa al sistema para revisarla y aprobarla o rechazarla.
 
-Este es un mensaje automático del Sistema de Gestión de Permisos del Colegio TGS.
+Este es un mensaje automático de Quiero mi Permiso! - Colegio TGS.
     """
     return _send_email(admin_emails, subject, body)
 
@@ -65,7 +69,7 @@ Tipo: {tipo_label}
 Fecha: {solicitud['fecha_inicio']}
 Jornada: {jornada_label}
 
-Este es un mensaje automático del Sistema de Gestión de Permisos del Colegio TGS.
+Este es un mensaje automático de Quiero mi Permiso! - Colegio TGS.
     """
     return _send_email(user_profile['email'], subject, body)
 
@@ -87,6 +91,6 @@ Jornada: {jornada_label}{nota_linea}
 
 Si tienes dudas, contacta a la dirección del colegio.
 
-Este es un mensaje automático del Sistema de Gestión de Permisos del Colegio TGS.
+Este es un mensaje automático de Quiero mi Permiso! - Colegio TGS.
     """
     return _send_email(user_profile['email'], subject, body)
