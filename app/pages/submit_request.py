@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from app.database import insert_solicitud, get_user_solicitudes, get_supabase_admin, get_admin_emails, get_feriados_internos
 from app.services.leave_rules import evaluate_auto_approval, is_blocked_day
 from app.constants import TIPO_PERMISO_LABELS, JORNADA_LABELS
-from app.notifications import send_new_request_email, send_approval_email, send_rejection_email
+from app.notifications import send_new_request_email, send_approval_email, send_rejection_email, send_auto_approval_admin_email
 
 def render_submit_request(user):
     """Renderiza el formulario para nueva solicitud."""
@@ -101,6 +101,8 @@ def render_submit_request(user):
                     # Notificaciones por correo
                     if estado == "aprobado_auto":
                         send_approval_email(solicitud_data, user)
+                        admin_emails = get_admin_emails()
+                        send_auto_approval_admin_email(solicitud_data, user, admin_emails)
                     elif estado == "pendiente":
                         admin_emails = get_admin_emails()
                         send_new_request_email(solicitud_data, user, admin_emails)

@@ -55,6 +55,29 @@ Este es un mensaje automático de Quiero mi Permiso! - Colegio TGS.
     return _send_email(admin_emails, subject, body)
 
 
+def send_auto_approval_admin_email(solicitud, user_profile, admin_emails: list) -> bool:
+    """Informa a los administradores que una solicitud fue aprobada automáticamente."""
+    if not admin_emails:
+        return False
+    tipo_label = TIPO_PERMISO_LABELS.get(solicitud['tipo_permiso'], solicitud['tipo_permiso'])
+    jornada_label = JORNADA_LABELS.get(solicitud['jornada'], solicitud['jornada'])
+    subject = f"Permiso aprobado automáticamente — {user_profile['full_name']}"
+    body = f"""
+Se ha aprobado automáticamente una solicitud de permiso:
+
+Docente: {user_profile['full_name']} ({user_profile['email']})
+Tipo: {tipo_label}
+Fecha: {solicitud['fecha_inicio']}
+Jornada: {jornada_label}
+Motivo Docente: {solicitud.get('motivo') or 'Sin motivo'}
+
+Esta solicitud cumplió todos los requisitos y fue aprobada sin intervención manual.
+
+Este es un mensaje automático de Quiero mi Permiso! - Colegio TGS.
+    """
+    return _send_email(admin_emails, subject, body)
+
+
 def send_approval_email(solicitud, user_profile) -> bool:
     """Notifica al usuario que su solicitud fue aprobada."""
     tipo_label = TIPO_PERMISO_LABELS.get(solicitud['tipo_permiso'], solicitud['tipo_permiso'])
