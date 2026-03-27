@@ -287,9 +287,10 @@ El parámetro `db_queries` es un dict de funciones pasadas desde `database.py` (
 #### `app/pages/dashboard.py`
 
 - `st.metric("Días administrativos restantes", valor)` → `3 - días_usados_año`
-  - Días usados = suma de jornadas aprobadas del año actual (completa=1, media=0.5)
-- `st.dataframe` historial personal con labels en español
-- Columnas **excluidas**: `es_pagado`, `admin_nota`, `notificado`, `user_id`
+- `st.metric("Días en revisión", valor_pendientes)`
+- `st.dataframe(width='stretch')` historial personal con labels en español.
+- **Transparencia:** Incluye columna `admin_nota` ("Nota del Admin") para que el usuario vea feedback.
+- Columnas **excluidas**: `es_pagado`, `notificado`, `user_id`
 - `df.fillna("")` antes de mostrar (evita bug de visualización con valores `None`)
 
 ---
@@ -330,6 +331,13 @@ El parámetro `db_queries` es un dict de funciones pasadas desde `database.py` (
 - `st.selectbox` por fila para cambiar rol
 - Botón Guardar → `database.update_user_role(user_id, new_role)`
 - Advertencia si se intenta degradar al último administrador
+
+#### `app/pages/admin_feriados.py` — Gestión de Calendario
+
+- Panel para que el admin registre fechas como "Días No Laborables Internos".
+- Listado de fechas con opción de eliminar.
+- Formulario para añadir fecha + descripción.
+- Estas fechas alimentan `is_blocked_day` para prevenir solicitudes en días cerrados.
 
 ---
 
@@ -470,6 +478,12 @@ dependencies = [
 | 4 | Páginas Usuario | Formulario solicitud + historial personal |
 | 5 | Panel Admin | Gestión, reportes, administración usuarios |
 | 6 | Notificaciones | Emails SMTP en español |
+| 7 | Hardening | Null safety, caché, errores, tema visual |
+ración usuarios |
+| 6 | Notificaciones | Emails SMTP en español |
+| 7 | Hardening | Null safety, caché, errores, tema visual |
+s, tema visual |
+l |
 | 7 | Hardening | Null safety, caché, errores, tema visual |
 ración usuarios |
 | 6 | Notificaciones | Emails SMTP en español |

@@ -76,6 +76,8 @@ Para que la aplicación sea plenamente funcional, es necesario configurar los si
 - `app/auth.py`: Lógica de autenticación y sesiones.
 - `app/database.py`: Cliente y queries de Supabase.
 - `app/services/leave_rules.py`: Motor de reglas de negocio.
-- `app/pages/`: Páginas de la interfaz (Dashboard, Solicitud, Admin).
+- `app/pages/`: Páginas de la interfaz (Dashboard, Solicitud, Admin Panel, Reportes, Usuarios, **Feriados**).
 - `app/constants.py`: Mapeo de enums y labels en español.
+- `GEMINI.md`: Contexto técnico para desarrollo asistido por IA.
+py`: Mapeo de enums y labels en español.
 - `GEMINI.md`: Contexto técnico para desarrollo asistido por IA.

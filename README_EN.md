@@ -74,6 +74,8 @@ To make the application fully functional, you need to configure the following ex
 - `app/auth.py`: Authentication and session logic.
 - `app/database.py`: Supabase client and queries.
 - `app/services/leave_rules.py`: Business rules engine.
-- `app/pages/`: UI pages (Dashboard, Request, Admin).
+- `app/pages/`: UI pages (Dashboard, Request, Admin Panel, Reports, Users, **Holidays**).
 - `app/constants.py`: Enum mapping and Spanish labels.
+- `GEMINI.md`: Technical context for AI-assisted development.
+s.py`: Enum mapping and Spanish labels.
 - `GEMINI.md`: Technical context for AI-assisted development.
