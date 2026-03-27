@@ -54,10 +54,13 @@ def get_admin_emails() -> list:
 # --- Consultas de Solicitudes ---
 
 @st.cache_data(ttl=60)
-def get_user_solicitudes(user_id: str):
-    """Obtiene las solicitudes de un usuario específico."""
+def get_user_solicitudes(user_id: str, year: int | None = None):
+    """Obtiene las solicitudes de un usuario. Si se pasa year, filtra por ese año."""
     supabase = get_supabase_admin()
-    result = supabase.table("solicitudes").select("*").eq("user_id", user_id).order("fecha_inicio", desc=True).execute()
+    query = supabase.table("solicitudes").select("*").eq("user_id", user_id)
+    if year is not None:
+        query = query.gte("fecha_inicio", f"{year}-01-01").lte("fecha_inicio", f"{year}-12-31")
+    result = query.order("fecha_inicio", desc=True).execute()
     return result.data
 
 def insert_solicitud(solicitud_data: dict):

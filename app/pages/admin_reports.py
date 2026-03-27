@@ -1,3 +1,4 @@
+import datetime
 import streamlit as st
 import pandas as pd
 from app.database import get_supabase_admin
@@ -6,30 +7,32 @@ from app.constants import TIPO_PERMISO_LABELS, ESTADO_LABELS, JORNADA_LABELS
 def render_admin_reports():
     """Renderiza el panel de reportes con filtros dinámicos."""
     st.header("📊 Reportes y Estadísticas")
-    
+
     supabase = get_supabase_admin()
-    
+
     # --- Filtros ---
     with st.expander("🔍 Filtros de Búsqueda", expanded=True):
         col1, col2, col3 = st.columns(3)
-        
+
         # 1. Obtener lista de usuarios para el filtro
         users_res = supabase.table("profiles").select("id, full_name").execute()
         users_list = {u["full_name"]: u["id"] for u in users_res.data}
-        
+
         with col1:
             selected_user_name = st.selectbox("Usuario", options=["Todos"] + list(users_list.keys()))
-            
+
         with col2:
-            date_range = st.date_input("Rango de Fechas", value=[])
-            
+            current_year = datetime.date.today().year
+            year_options = ["Todos"] + list(range(current_year, current_year - 5, -1))
+            selected_year = st.selectbox("Año", options=year_options, index=1)
+
         with col3:
             selected_states = st.multiselect(
-                "Estado", 
-                options=list(ESTADO_LABELS.keys()), 
+                "Estado",
+                options=list(ESTADO_LABELS.keys()),
                 format_func=lambda x: ESTADO_LABELS[x]
             )
-            
+
         st.divider()
         col_sort1, col_sort2 = st.columns(2)
         with col_sort1:
@@ -39,14 +42,16 @@ def render_admin_reports():
 
     # --- Query Dinámica ---
     query = supabase.table("solicitudes").select("*, profiles(full_name, area)")
-    
+
     # Aplicar Filtros
     if selected_user_name != "Todos":
         query = query.eq("user_id", users_list[selected_user_name])
-    
-    if len(date_range) == 2:
-        query = query.gte("fecha_inicio", date_range[0]).lte("fecha_inicio", date_range[1])
-    
+
+    if selected_year != "Todos":
+        query = query\
+            .gte("fecha_inicio", f"{selected_year}-01-01")\
+            .lte("fecha_inicio", f"{selected_year}-12-31")
+
     if selected_states:
         query = query.in_("estado", selected_states)
         

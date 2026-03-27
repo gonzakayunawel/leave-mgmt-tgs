@@ -1,3 +1,4 @@
+import datetime
 import streamlit as st
 import pandas as pd
 from app.database import get_supabase_admin
@@ -7,23 +8,32 @@ from app.notifications import send_approval_email, send_rejection_email
 def render_admin_panel(user):
     """Renderiza el panel de gestión de permisos para administradores."""
     st.header("✅ Gestión de Solicitudes Pendientes")
-    
+
     is_read_only = user.get("rol") == "admin_read_only"
     if is_read_only:
         st.info("Modo Solo Lectura: No puedes aprobar o rechazar solicitudes.")
 
     supabase = get_supabase_admin()
-    
+
+    # Selector de año
+    current_year = datetime.date.today().year
+    year_options = ["Todos"] + list(range(current_year, current_year - 5, -1))
+    selected_year = st.selectbox("Año", options=year_options, index=1)
+
     # Query de solicitudes pendientes con información del perfil
-    # En una implementación real, se usaría un Join o una vista
-    result = supabase.table("solicitudes")\
+    query = supabase.table("solicitudes")\
         .select("*, profiles(full_name, email, area)")\
-        .eq("estado", "pendiente")\
-        .order("fecha_inicio")\
-        .execute()
-    
+        .eq("estado", "pendiente")
+
+    if selected_year != "Todos":
+        query = query\
+            .gte("fecha_inicio", f"{selected_year}-01-01")\
+            .lte("fecha_inicio", f"{selected_year}-12-31")
+
+    result = query.order("fecha_inicio").execute()
+
     pendientes = result.data
-    
+
     if not pendientes:
         st.success("No hay solicitudes pendientes de revisión.")
         return

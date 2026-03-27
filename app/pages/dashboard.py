@@ -7,17 +7,16 @@ def render_dashboard(user):
     """Renderiza el historial personal y métricas del usuario."""
     st.header(f"Bienvenido, {user.get('full_name')}")
     
-    # Obtener solicitudes
-    solicitudes = get_user_solicitudes(user["id"])
-    
-    # Calcular días administrativos usados (aprobados + pendientes)
+    # Obtener solicitudes del año actual únicamente
     current_year = pd.Timestamp.now().year
+    solicitudes = get_user_solicitudes(user["id"], year=current_year)
+
+    # Calcular días administrativos usados (aprobados + pendientes)
     approved_days = 0.0
     pending_days = 0.0
 
     for sol in solicitudes:
-        if (sol["tipo_permiso"] == "administrativo" and
-                pd.to_datetime(sol["fecha_inicio"]).year == current_year):
+        if sol["tipo_permiso"] == "administrativo":
             value = 1.0 if sol["jornada"] == "completa" else 0.5
             if sol["estado"] in ["aprobado_auto", "aprobado_manual"]:
                 approved_days += value
@@ -58,5 +57,5 @@ def render_dashboard(user):
     # Manejar valores nulos para evitar bug de visualización
     display_df = display_df.fillna("-")
     
-    st.subheader("Mi Historial")
+    st.subheader(f"Mi Historial {current_year}")
     st.dataframe(display_df, width='stretch', hide_index=True)
