@@ -46,9 +46,9 @@ def create_user_profile(user_id: str, email: str, full_name: str) -> dict:
     return fresh.data
 
 def get_admin_emails() -> list:
-    """Retorna los emails de todos los administradores."""
+    """Retorna los emails de todos los administradores (admin y admin_read_only)."""
     supabase = get_supabase_admin()
-    result = supabase.table("profiles").select("email").eq("rol", "admin").execute()
+    result = supabase.table("profiles").select("email").in_("rol", ["admin", "admin_read_only"]).execute()
     return [r["email"] for r in result.data] if result.data else []
 
 # --- Consultas de Solicitudes ---

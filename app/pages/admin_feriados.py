@@ -11,6 +11,7 @@ def render_admin_feriados(user):
         "(ej. cierre de año, feriados propios del establecimiento)."
     )
 
+    is_read_only = user.get("rol") == "admin_read_only"
     feriados = get_feriados_internos()
 
     # --- Lista de feriados actuales ---
@@ -49,6 +50,4 @@ def render_admin_feriados(user):
             else:
                 add_feriado_interno(str(nueva_fecha), descripcion.strip(), user["id"])
                 st.success(f"Día no laborable {nueva_fecha} agregado correctamente.")
-                st.rerun()
-)
                 st.rerun()
