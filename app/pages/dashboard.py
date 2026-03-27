@@ -52,9 +52,9 @@ def render_dashboard(user):
     df["Fecha Inicio"] = pd.to_datetime(df["fecha_inicio"]).dt.strftime('%d/%m/%Y')
     
     # Seleccionar y renombrar columnas
-    display_df = df[["Fecha Inicio", "Tipo", "Jornada", "Estado", "motivo"]].copy()
-    display_df.columns = ["Fecha", "Tipo de Permiso", "Jornada", "Estado", "Motivo"]
-    
+    display_df = df[["Fecha Inicio", "Tipo", "Jornada", "Estado", "motivo", "admin_nota"]].copy()
+    display_df.columns = ["Fecha", "Tipo de Permiso", "Jornada", "Estado", "Motivo", "Nota del Admin"]
+
     # Manejar valores nulos para evitar bug de visualización
     display_df = display_df.fillna("-")
     
