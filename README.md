@@ -44,10 +44,30 @@ Sistema web para la gestión automatizada y manual de permisos laborales del Col
    uv run streamlit run main.py
    ```
 
-## 🌐 Despliegue en Streamlit Cloud
+## 🚀 Despliegue y Configuración de Servicios
+
+Para que la aplicación sea plenamente funcional, es necesario configurar los siguientes servicios externos:
+
+### 1. Base de Datos (Supabase)
+1. **Proyecto:** Crea un proyecto en [Supabase](https://supabase.com/).
+2. **Tablas y RLS:** Ejecuta el script SQL incluido en `Plan_Implementacion_Leave_MGMT_App_TGS.md` en el Editor SQL de Supabase.
+3. **Google Auth:** Habilita el proveedor Google en `Authentication > Providers`. Necesitarás el Client ID y Secret de GCP.
+
+### 2. Autenticación Google (GCP)
+1. **Proyecto:** Crea un proyecto en [Google Cloud Console](https://console.cloud.google.com/).
+2. **OAuth Consent Screen:** Configúrala en modo **Interno** (Internal) para restringir el acceso exclusivamente al dominio `@colegiotgs.cl`.
+3. **Credenciales:** Crea un "ID de cliente de OAuth 2.0" (Aplicación Web).
+4. **Redirección:** Añade la URL de callback que te proporciona Supabase en su panel de configuración de Google.
+
+### 3. Notificaciones (SMTP)
+1. **Cuenta:** Crea una cuenta de correo dedicada (ej: `notificaciones@colegiotgs.cl`).
+2. **Seguridad:** Habilita la "Verificación en 2 pasos" en la cuenta de Google.
+3. **Clave de Aplicación:** Genera una **Contraseña de aplicación** específica para el servicio de correo. Esta clave es la que debe usarse en los Secrets, no la contraseña personal de la cuenta.
+
+### 4. Hosting (Streamlit Cloud)
 1. Sube el repositorio a GitHub.
 2. Conecta tu cuenta en [Streamlit Cloud](https://share.streamlit.io/).
-3. Configura los **Secrets** en el panel de control de Streamlit pegando el contenido de tu `secrets.toml`.
+3. **Secrets:** Configura los secretos en el panel de control de Streamlit pegando el contenido de tu `.streamlit/secrets.toml`.
 
 ## 📂 Estructura del Proyecto
 - `main.py`: Punto de entrada y enrutamiento.
