@@ -1,9 +1,9 @@
-import datetime
 import streamlit as st
 import pandas as pd
 from app.database import get_supabase_admin
 from app.constants import TIPO_PERMISO_LABELS, JORNADA_LABELS
 from app.notifications import send_approval_email, send_rejection_email
+
 
 def render_admin_panel(user):
     """Renderiza el panel de gestión de permisos para administradores."""
@@ -15,22 +15,14 @@ def render_admin_panel(user):
 
     supabase = get_supabase_admin()
 
-    # Selector de año
-    current_year = datetime.date.today().year
-    year_options = ["Todos"] + list(range(current_year, current_year - 5, -1))
-    selected_year = st.selectbox("Año", options=year_options, index=1)
-
     # Query de solicitudes pendientes con información del perfil
-    query = supabase.table("solicitudes")\
-        .select("*, profiles(full_name, email, area)")\
+    result = (
+        supabase.table("solicitudes")
+        .select("*, profiles(full_name, email, area)")
         .eq("estado", "pendiente")
-
-    if selected_year != "Todos":
-        query = query\
-            .gte("fecha_inicio", f"{selected_year}-01-01")\
-            .lte("fecha_inicio", f"{selected_year}-12-31")
-
-    result = query.order("fecha_inicio").execute()
+        .order("fecha_inicio")
+        .execute()
+    )
 
     pendientes = result.data
 
@@ -39,64 +31,77 @@ def render_admin_panel(user):
         return
 
     st.write(f"Hay {len(pendientes)} solicitudes esperando tu revisión.")
-    
+
     for sol in pendientes:
         profile = sol.get("profiles", {})
         with st.expander(f"📝 {profile.get('full_name')} - {sol['fecha_inicio']}"):
             col1, col2 = st.columns(2)
-            
+
             with col1:
                 st.write(f"**Email:** {profile.get('email')}")
                 st.write(f"**Área:** {profile.get('area', 'No definida')}")
                 st.write(f"**Tipo:** {TIPO_PERMISO_LABELS.get(sol['tipo_permiso'])}")
-            
+
             with col2:
                 st.write(f"**Fecha:** {sol['fecha_inicio']}")
                 st.write(f"**Jornada:** {JORNADA_LABELS.get(sol['jornada'])}")
                 st.write(f"**Motivo Usuario:** {sol.get('motivo', 'Sin motivo')}")
-            
+
             # Mostrar razón de derivación si existe
             if sol.get("admin_nota") and sol["admin_nota"].startswith("SISTEMA:"):
-                st.warning(f"⚠️ **Derivación Automática:** {sol['admin_nota'].replace('SISTEMA: ', '')}")
+                st.warning(
+                    f"⚠️ **Derivación Automática:** {sol['admin_nota'].replace('SISTEMA: ', '')}"
+                )
 
             st.divider()
-            
+
             # Opción de Pago (Solo para Con Goce / Sin Goce)
             es_pagado = sol["es_pagado"]
             if sol["tipo_permiso"] in ["con_goce", "sin_goce"]:
                 es_pagado = st.toggle(
-                    "Procesar con Pago (Remunerado)", 
-                    value=sol["es_pagado"], 
+                    "Procesar con Pago (Remunerado)",
+                    value=sol["es_pagado"],
                     key=f"pay_{sol['id']}",
-                    disabled=is_read_only
+                    disabled=is_read_only,
                 )
-            
+
             admin_nota_input = st.text_input(
-                "Nota administrativa (opcional)", 
+                "Nota administrativa (opcional)",
                 key=f"note_{sol['id']}",
                 disabled=is_read_only,
-                placeholder="Escribe aquí el motivo de la decisión..."
+                placeholder="Escribe aquí el motivo de la decisión...",
             )
-            
+
             btn_col1, btn_col2, _ = st.columns([1, 1, 2])
-            
-            if btn_col1.button("Aprobar", key=f"approve_{sol['id']}", type="primary", disabled=is_read_only):
+
+            if btn_col1.button(
+                "Aprobar",
+                key=f"approve_{sol['id']}",
+                type="primary",
+                disabled=is_read_only,
+            ):
                 update_data = {
                     "estado": "aprobado_manual",
                     "es_pagado": es_pagado,
-                    "admin_nota": admin_nota_input
+                    "admin_nota": admin_nota_input,
                 }
-                supabase.table("solicitudes").update(update_data).eq("id", sol["id"]).execute()
+                supabase.table("solicitudes").update(update_data).eq(
+                    "id", sol["id"]
+                ).execute()
                 send_approval_email(sol, profile)
                 st.success("Solicitud APROBADA.")
                 st.rerun()
 
-            if btn_col2.button("Rechazar", key=f"reject_{sol['id']}", type="secondary", disabled=is_read_only):
-                update_data = {
-                    "estado": "rechazado",
-                    "admin_nota": admin_nota_input
-                }
-                supabase.table("solicitudes").update(update_data).eq("id", sol["id"]).execute()
+            if btn_col2.button(
+                "Rechazar",
+                key=f"reject_{sol['id']}",
+                type="secondary",
+                disabled=is_read_only,
+            ):
+                update_data = {"estado": "rechazado", "admin_nota": admin_nota_input}
+                supabase.table("solicitudes").update(update_data).eq(
+                    "id", sol["id"]
+                ).execute()
                 send_rejection_email(sol, profile, admin_nota_input)
                 st.error("Solicitud RECHAZADA.")
                 st.rerun()
