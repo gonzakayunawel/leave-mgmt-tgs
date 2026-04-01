@@ -18,11 +18,8 @@ def sign_in_with_google():
         }
     })
     if response and hasattr(response, "url") and response.url:
-        st.markdown(
-            f'<meta http-equiv="refresh" content="0; url={response.url}">',
-            unsafe_allow_html=True,
-        )
-        st.info("Redirigiendo a Google para iniciar sesión...")
+        st.code(response.url, language=None)
+        st.warning("DEBUG: Copia esta URL y ábrela manualmente en el navegador. ¿Empieza con accounts.google.com o con supabase.co?")
     else:
         st.error("No se pudo iniciar el flujo de autenticación. Verifica la configuración de Supabase.")
 
