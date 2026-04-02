@@ -46,6 +46,7 @@ El sistema controla un cupo de **3 días hábiles** por año calendario para cad
 
 #### Restricciones para Aprobación Automática:
 Para que un permiso se apruebe de forma inmediata (sin intervención de Dirección), debe cumplir:
+
 *   **Días Prohibidos:** No puede ser lunes, viernes, víspera de feriado o el día posterior a un feriado.
 *   **Consecutividad:** No se pueden solicitar dos permisos administrativos en días seguidos.
 *   **Límite Institucional:** El sistema permite un máximo de **2 personas** con permiso administrativo el mismo día en todo el colegio para no afectar la operación.
