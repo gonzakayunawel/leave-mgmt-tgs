@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 from app.database import get_supabase, get_user_profile, create_user_profile
 from app.config import ALLOWED_DOMAIN
 
@@ -7,25 +6,23 @@ def validate_domain(email: str) -> bool:
     """Verifica si el correo pertenece al dominio permitido."""
     return email.endswith(f"@{ALLOWED_DOMAIN}")
 
-def sign_in_with_google():
-    """Inicia el flujo de autenticación con Google."""
-    supabase = get_supabase()
-    redirect_url = st.secrets.get("REDIRECT_URL", "http://localhost:8501")
-    response = supabase.auth.sign_in_with_oauth({
-        "provider": "google",
-        "options": {
-            "redirect_to": redirect_url,
-            "query_params": {"access_type": "offline", "prompt": "consent"},
-        }
-    })
-    if response and hasattr(response, "url") and response.url:
-        components.html(
-            f'<script>window.top.location.href = "{response.url}";</script>',
-            height=0,
-        )
-        st.info("Redirigiendo a Google para iniciar sesión...")
-    else:
-        st.error("No se pudo iniciar el flujo de autenticación. Verifica la configuración de Supabase.")
+def _get_oauth_url() -> str | None:
+    """Genera y cachea la URL OAuth en session_state para esta sesión."""
+    if "oauth_url" not in st.session_state:
+        supabase = get_supabase()
+        redirect_url = st.secrets.get("REDIRECT_URL", "http://localhost:8501")
+        response = supabase.auth.sign_in_with_oauth({
+            "provider": "google",
+            "options": {
+                "redirect_to": redirect_url,
+                "query_params": {"access_type": "offline", "prompt": "consent"},
+            }
+        })
+        if response and hasattr(response, "url") and response.url:
+            st.session_state["oauth_url"] = response.url
+        else:
+            return None
+    return st.session_state["oauth_url"]
 
 def handle_auth_callback():
     """Maneja el retorno de OAuth desde la URL (flujo PKCE con code)."""
@@ -54,7 +51,7 @@ def handle_auth_callback():
 
         profile = get_user_profile(user.id)
         if not profile:
-            full_name = (user.user_metadata or {}).get("full_name") or (user.user_metadata or {}).get("name") or email
+            full_name = (user.user_metadata or {}).get("full_name") or (user.user_metadata or {}).get("name") or user.email
             profile = create_user_profile(user.id, user.email, full_name)
         if not profile:
             st.error("No se pudo crear tu perfil. Contacta al administrador.")
@@ -86,6 +83,9 @@ def render_login_page():
     st.title("🏫 Quiero mi Permiso!")
     st.subheader("Colegio TGS")
     st.write("Por favor, inicia sesión con tu cuenta institucional para continuar.")
-    
-    if st.button("Iniciar sesión con Google", icon="🔑"):
-        sign_in_with_google()
+
+    oauth_url = _get_oauth_url()
+    if oauth_url:
+        st.link_button("🔑 Iniciar sesión con Google", url=oauth_url, use_container_width=True)
+    else:
+        st.error("No se pudo iniciar el flujo de autenticación. Verifica la configuración de Supabase.")
